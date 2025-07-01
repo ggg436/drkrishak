@@ -1,0 +1,34 @@
+{
+  "header": {
+    "search": "Search for eco-tips, products, communities...",
+    "signIn": "Sign In",
+    "viewProfile": "View Profile",
+    "settings": "Settings",
+    "signOut": "Sign Out",
+    "carbonSaved": "Carbon Saved",
+    "ecoPoints": "Eco Points"
+  },
+  "doctor": {
+    "title": "Plant Doctor",
+    "upload": "Upload a plant image to detect possible diseases using AI.",
+    "analyze": "Analyze Image",
+    "analyzing": "Analyzing...",
+    "result": "Result:",
+    "detected": "Detected:",
+    "probability": "probability",
+    "details": "Details:",
+    "otherPossibilities": "Other possibilities:",
+    "noDiseases": "No diseases detected",
+    "noResults": "No result data available",
+    "unableToParseInfo": "Unable to parse disease information from the API response.",
+    "responseStructure": "Response structure:",
+    "showHideJson": "Show/Hide JSON data",
+    "treatmentPrevention": "Treatment & Prevention:",
+    "loadingTips": "Loading treatment and prevention tips..."
+  },
+  "language": {
+    "select": "Select Language",
+    "en": "English",
+    "ne": "नेपाली"
+  }
+} 

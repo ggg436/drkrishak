@@ -11,6 +11,7 @@ import CarbonCalculator from './components/CarbonCalculator';
 import Communities from './components/Communities';
 import Events from './components/Events';
 import Messages from './components/Messages';
+import Doctor from './components/Doctor';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -32,6 +33,8 @@ function App() {
         return <CarbonCalculator />;
       case 'communities':
         return <Communities />;
+      case 'doctor':
+        return <Doctor />;
       case 'events':
         return <Events />;
       case 'messages':

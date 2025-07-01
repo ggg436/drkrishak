@@ -25,14 +25,51 @@ import {
   Plus,
   Leaf,
   Recycle,
-  Sun
+  Sun,
+  Cloud
 } from 'lucide-react';
+
+interface Tag {
+  id: string;
+  label: string;
+}
+
+interface User {
+  name: string;
+  avatar: string;
+  badge: string;
+  location: string;
+  verified: boolean;
+  level: string;
+}
+
+interface Post {
+  id: number;
+  user: User;
+  content: string;
+  image: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  views: number;
+  timestamp: string;
+  tags: string[];
+  type: 'text' | 'tip' | 'achievement' | 'question' | 'marketplace';
+  carbonSaved?: string;
+  price?: string;
+  discount?: string;
+  engagement: {
+    liked: boolean;
+    bookmarked: boolean;
+    shared: boolean;
+  }
+}
 
 const Feed = () => {
   const [newPost, setNewPost] = useState('');
   const [postPrivacy, setPostPrivacy] = useState('public');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [postType, setPostType] = useState('text');
@@ -45,38 +82,38 @@ const Feed = () => {
 
   const postTypes = [
     { id: 'text', label: 'Text Post', icon: FileText, color: 'blue' },
-    { id: 'tip', label: 'Eco Tip', icon: Leaf, color: 'green' },
-    { id: 'achievement', label: 'Achievement', icon: Award, color: 'yellow' },
+    { id: 'tip', label: 'Farming Tip', icon: Leaf, color: 'green' },
+    { id: 'achievement', label: 'Harvest', icon: Award, color: 'yellow' },
     { id: 'question', label: 'Question', icon: MessageCircle, color: 'purple' }
   ];
 
   const suggestedTags = [
-    'ZeroWaste', 'SustainableLiving', 'ClimateAction', 'RenewableEnergy', 
-    'EcoTips', 'GreenLiving', 'Composting', 'SolarPower', 'Recycling', 
-    'PlantBased', 'CarbonFootprint', 'EcoFriendly'
+    'OrganicFarming', 'Pesticides', 'Fertilizers', 'CropRotation', 
+    'SeedSelection', 'IrrigationTips', 'SoilHealth', 'PestControl', 
+    'Harvest', 'FarmTools', 'Livestock', 'WaterConservation'
   ];
 
-  const emojis = ['🌱', '🌍', '♻️', '🌿', '🌳', '💚', '🌞', '💧', '🌺', '🦋', '🐝', '🌾'];
+  const emojis = ['🌱', '🌾', '🌿', '🚜', '🧑‍🌾', '🐄', '🐓', '🌽', '🥔', '🥕', '☀️', '🌧️'];
 
-  const posts = [
+  const posts: Post[] = [
     {
       id: 1,
       user: {
-        name: 'Alex Rivera',
-        avatar: 'AR',
-        badge: 'Climate Activist',
-        location: 'San Francisco, CA',
+        name: 'Rajesh Kumar',
+        avatar: 'RK',
+        badge: 'Organic Farmer',
+        location: 'Bihar, India',
         verified: true,
-        level: 'Eco Champion'
+        level: 'Master Farmer'
       },
-      content: 'Just completed my first month of zero-waste living! Here are my top 5 tips that made the biggest difference: 1) Meal planning to reduce food waste, 2) Reusable containers for everything, 3) Bulk shopping, 4) DIY cleaning products, 5) Composting. The hardest part was changing habits, but now it feels natural! 🌱',
-      image: 'https://images.pexels.com/photos/4099238/pexels-photo-4099238.jpeg?auto=compress&cs=tinysrgb&w=800',
+      content: 'Just completed my first season using organic pesticides on my rice fields. The yield was almost the same as with chemical pesticides, but soil health has improved significantly. Here are my top tips: 1) Neem oil spray works wonders, 2) Crop rotation is essential, 3) Introduce beneficial insects, 4) Use companion planting, 5) Regular monitoring is key.',
+      image: 'https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=800',
       likes: 127,
       comments: 23,
       shares: 8,
       views: 1240,
       timestamp: '2 hours ago',
-      tags: ['ZeroWaste', 'SustainableLiving', 'EcoTips'],
+      tags: ['OrganicFarming', 'PestControl', 'SustainableAgriculture'],
       type: 'tip',
       carbonSaved: '2.3kg CO₂',
       engagement: {
@@ -88,24 +125,24 @@ const Feed = () => {
     {
       id: 2,
       user: {
-        name: 'Green Gardens Co.',
-        avatar: 'GG',
+        name: 'AgriTools Co.',
+        avatar: 'AT',
         badge: 'Verified Seller',
-        location: 'Portland, OR',
+        location: 'Delhi, India',
         verified: true,
         level: 'Business Partner'
       },
-      content: 'New arrival in our marketplace! These bamboo fiber plates are 100% biodegradable and perfect for outdoor events. Made from sustainable bamboo with natural plant-based dyes. Each purchase plants a tree! 🌳',
-      image: 'https://images.pexels.com/photos/4099235/pexels-photo-4099235.jpeg?auto=compress&cs=tinysrgb&w=800',
+      content: 'New in our agricultural marketplace! Traditional hand-forged sickles made by local artisans. Perfect balance, sharp edge, and comfortable wooden handle. Each purchase supports rural craftsmen!',
+      image: 'https://images.pexels.com/photos/296230/pexels-photo-296230.jpeg?auto=compress&cs=tinysrgb&w=800',
       likes: 89,
       comments: 15,
       shares: 12,
       views: 890,
       timestamp: '4 hours ago',
-      tags: ['Marketplace', 'Sustainable', 'Bamboo'],
+      tags: ['FarmTools', 'Traditional', 'Handcrafted'],
       type: 'marketplace',
-      price: '$24.99',
-      discount: '30% OFF',
+      price: '₹899',
+      discount: '20% OFF',
       engagement: {
         liked: true,
         bookmarked: false,
@@ -115,21 +152,21 @@ const Feed = () => {
     {
       id: 3,
       user: {
-        name: 'Maria Santos',
-        avatar: 'MS',
-        badge: 'Solar Expert',
-        location: 'Austin, TX',
+        name: 'Meera Patel',
+        avatar: 'MP',
+        badge: 'Irrigation Expert',
+        location: 'Gujarat, India',
         verified: true,
-        level: 'Green Pioneer'
+        level: 'Water Conservation Pioneer'
       },
-      content: 'Solar panel installation complete! Our home is now 100% powered by renewable energy. The installation took 2 days and we\'re already seeing the impact. Sharing our energy production data - we\'re generating 15% more than we consume! ☀️',
-      image: 'https://images.pexels.com/photos/9875414/pexels-photo-9875414.jpeg?auto=compress&cs=tinysrgb&w=800',
+      content: 'Drip irrigation system installation complete! Our farm is now using 60% less water with better crop health. The installation took just 3 days and the difference is already visible. Sharing data - we\'re seeing more consistent growth and fewer disease issues with targeted watering.',
+      image: 'https://images.pexels.com/photos/96715/pexels-photo-96715.jpeg?auto=compress&cs=tinysrgb&w=800',
       likes: 203,
       comments: 34,
       shares: 19,
       views: 2100,
       timestamp: '6 hours ago',
-      tags: ['Solar', 'RenewableEnergy', 'HomeImprovement'],
+      tags: ['Irrigation', 'WaterConservation', 'ModernFarming'],
       type: 'achievement',
       carbonSaved: '15.2kg CO₂/day',
       engagement: {
@@ -137,26 +174,76 @@ const Feed = () => {
         bookmarked: true,
         shared: false
       }
+    },
+    {
+      id: 4,
+      user: {
+        name: 'Dr. Sunil Verma',
+        avatar: 'SV',
+        badge: 'Agricultural Scientist',
+        location: 'Punjab, India',
+        verified: true,
+        level: 'Expert'
+      },
+      content: 'Q: I\'m seeing unusual yellow spots on my wheat crop leaves. They started appearing after last week\'s rain. The spots have a rust-like appearance and seem to be spreading. Has anyone encountered this issue? What could be causing this and what treatment would you recommend?',
+      image: 'https://images.pexels.com/photos/688668/pexels-photo-688668.jpeg?auto=compress&cs=tinysrgb&w=800',
+      likes: 45,
+      comments: 28,
+      shares: 7,
+      views: 876,
+      timestamp: '1 day ago',
+      tags: ['PlantDisease', 'WheatFarming', 'PestControl'],
+      type: 'question',
+      engagement: {
+        liked: true,
+        bookmarked: true,
+        shared: false
+      }
+    },
+    {
+      id: 5,
+      user: {
+        name: 'Ananya Singh',
+        avatar: 'AS',
+        badge: 'Organic Certification',
+        location: 'Uttarakhand, India',
+        verified: false,
+        level: 'Rising Farmer'
+      },
+      content: 'Has anyone tried using companion planting with marigolds to control pests in vegetable gardens? I\'ve heard they help repel certain insects, but I\'m not sure about the best arrangement. Should I plant them around the border or interspersed throughout? Also, how many marigold plants would be needed for a 20x30 foot vegetable plot?',
+      image: 'https://images.pexels.com/photos/5731861/pexels-photo-5731861.jpeg?auto=compress&cs=tinysrgb&w=800',
+      likes: 67,
+      comments: 42,
+      shares: 12,
+      views: 932,
+      timestamp: '2 days ago',
+      tags: ['CompanionPlanting', 'PestControl', 'OrganicGardening'],
+      type: 'question',
+      engagement: {
+        liked: false,
+        bookmarked: false,
+        shared: false
+      }
     }
   ];
 
-  const handleTagAdd = (tag) => {
+  const handleTagAdd = (tag: string) => {
     if (!selectedTags.includes(tag) && selectedTags.length < 5) {
       setSelectedTags([...selectedTags, tag]);
     }
     setShowTagSuggestions(false);
   };
 
-  const handleTagRemove = (tagToRemove) => {
+  const handleTagRemove = (tagToRemove: string) => {
     setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleEmojiAdd = (emoji) => {
+  const handleEmojiAdd = (emoji: string) => {
     setNewPost(newPost + emoji);
     setShowEmojiPicker(false);
   };
 
-  const getPostTypeColor = (type) => {
+  const getPostTypeColor = (type: string) => {
     const typeObj = postTypes.find(t => t.id === type);
     return typeObj ? typeObj.color : 'gray';
   };
@@ -205,7 +292,7 @@ const Feed = () => {
               {/* Main Text Area */}
               <div className="relative">
                 <textarea
-                  placeholder={`Share your ${postType === 'tip' ? 'eco-friendly tips' : postType === 'achievement' ? 'environmental achievements' : postType === 'question' ? 'questions with the community' : 'sustainable projects or environmental insights'}...`}
+                  placeholder={`Share your ${postType === 'tip' ? 'farming tips' : postType === 'achievement' ? 'harvest results' : postType === 'question' ? 'agricultural questions' : 'farming experiences or insights'}...`}
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
                   className="w-full p-4 border-2 border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
@@ -375,6 +462,7 @@ const Feed = () => {
                       post.type === 'tip' ? 'bg-green-100 text-green-700' :
                       post.type === 'achievement' ? 'bg-yellow-100 text-yellow-700' :
                       post.type === 'marketplace' ? 'bg-blue-100 text-blue-700' :
+                      post.type === 'question' ? 'bg-purple-100 text-purple-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
                       {post.user.badge}

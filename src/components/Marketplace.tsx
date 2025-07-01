@@ -21,7 +21,8 @@ const Marketplace = () => {
     { id: 'secondhand', name: 'Second Hand', icon: Recycle },
     { id: 'zerowaste', name: 'Zero Waste', icon: Leaf },
     { id: 'renewable', name: 'Renewable Energy', icon: Zap },
-    { id: 'organic', name: 'Organic Products', icon: Leaf }
+    { id: 'organic', name: 'Organic Products', icon: Leaf },
+    { id: 'agriculture', name: 'Agricultural Tools', icon: Cloud }
   ];
 
   const defaultProducts = [
@@ -130,6 +131,77 @@ const Marketplace = () => {
       },
       description: 'Weather-resistant solar-powered garden lighting',
       impact: 'Zero electricity cost'
+    },
+    {
+      id: 7,
+      name: 'Refurbished 1960s Farmall Tractor',
+      price: 8999.99,
+      originalPrice: 12500.00,
+      rating: 4.9,
+      reviews: 32,
+      image: 'https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=400',
+      seller: 'Vintage Farm Equipment',
+      category: 'agriculture',
+      sustainability: {
+        carbonNeutral: false,
+        biodegradable: false,
+        recycled: true
+      },
+      description: 'Fully restored vintage tractor, perfect working condition with modern upgrades',
+      impact: 'Extends equipment lifecycle by decades'
+    },
+    {
+      id: 8,
+      name: 'Hand-Forged Traditional Sickle',
+      price: 89.99,
+      rating: 4.7,
+      reviews: 56,
+      image: 'https://images.pexels.com/photos/296230/pexels-photo-296230.jpeg?auto=compress&cs=tinysrgb&w=400',
+      seller: 'Heritage Farm Tools',
+      category: 'agriculture',
+      sustainability: {
+        carbonNeutral: true,
+        biodegradable: false,
+        recycled: false
+      },
+      description: 'Traditional hand-crafted harvesting tool, ergonomic wooden handle',
+      impact: 'Supports local artisans & reduces machinery dependence'
+    },
+    {
+      id: 9,
+      name: 'Antique Wooden Plough',
+      price: 450.00,
+      originalPrice: 600.00,
+      rating: 4.8,
+      reviews: 24,
+      image: 'https://images.pexels.com/photos/688668/pexels-photo-688668.jpeg?auto=compress&cs=tinysrgb&w=400',
+      seller: 'Rural Antiquities',
+      category: 'agriculture',
+      sustainability: {
+        carbonNeutral: true,
+        biodegradable: true,
+        recycled: true
+      },
+      description: 'Beautifully preserved wooden plough from the 1800s, functional or decorative',
+      impact: 'Preserves agricultural heritage'
+    },
+    {
+      id: 10,
+      name: 'Reconditioned Farm Seeder',
+      price: 1299.99,
+      originalPrice: 1899.99,
+      rating: 4.6,
+      reviews: 41,
+      image: 'https://images.pexels.com/photos/96715/pexels-photo-96715.jpeg?auto=compress&cs=tinysrgb&w=400',
+      seller: 'AgriRestore Co-op',
+      category: 'agriculture',
+      sustainability: {
+        carbonNeutral: false,
+        biodegradable: false,
+        recycled: true
+      },
+      description: 'Professional-grade seeder restored to like-new condition, multiple row capacity',
+      impact: 'Reduces manufacturing waste by 85%'
     }
   ];
 
