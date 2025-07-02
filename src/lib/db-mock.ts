@@ -238,10 +238,11 @@ const saveDbState = () => {
 };
 
 // Helper function to parse SQL-like queries (very simplified)
-const parseQuery = (text: string): { action: string; table: string } => {
+const parseQuery = (text: string): { action: string; table: string; isJoin: boolean } => {
   text = text.toLowerCase();
   let action = 'unknown';
   let table = '';
+  let isJoin = false;
 
   if (text.includes('select')) action = 'select';
   else if (text.includes('insert')) action = 'insert';
@@ -251,7 +252,9 @@ const parseQuery = (text: string): { action: string; table: string } => {
   if (text.includes('from users') || text.includes('into users')) table = 'users';
   else if (text.includes('from posts') || text.includes('into posts')) table = 'posts';
 
-  return { action, table };
+  if (text.includes('join users') || text.includes('join posts')) isJoin = true;
+
+  return { action, table, isJoin };
 };
 
 // Mock query function
@@ -259,7 +262,7 @@ export async function query(text: string, params?: any[]): Promise<QueryResult> 
   console.log('Mock DB Query:', { text, params });
   
   try {
-    const { action, table } = parseQuery(text);
+    const { action, table, isJoin } = parseQuery(text);
     
     // Handle different query types
     if (action === 'select') {
@@ -284,12 +287,30 @@ export async function query(text: string, params?: any[]): Promise<QueryResult> 
       
       if (table === 'posts') {
         // Handle post queries
-        if (text.includes('join users')) {
+        if (isJoin && text.includes('join users')) {
+          console.log('Processing JOIN query for posts with users');
           // Handle JOIN query for posts with users
           const joinedRows = mockDb.posts.map(post => {
             const user = mockDb.users.find(u => u.id === post.user_id);
-            return { ...post, user };
-          });
+            if (!user) {
+              console.error(`User not found for post with user_id: ${post.user_id}`);
+              return null;
+            }
+            return { 
+              ...post, 
+              name: user.name,
+              email: user.email,
+              avatar: user.avatar,
+              level: user.level,
+              joinDate: user.joindate,
+              verified: user.verified,
+              badge: user.badge,
+              user_location: user.location,
+              stats: user.stats
+            };
+          }).filter(Boolean); // Remove any null entries
+          
+          console.log('Joined rows:', joinedRows);
           return { rows: joinedRows, rowCount: joinedRows.length, command: 'SELECT', oid: 0, fields: [] };
         }
         

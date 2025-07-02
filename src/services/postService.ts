@@ -30,6 +30,7 @@ export interface PostWithUser extends Post {
  */
 export const getAllPosts = async (): Promise<PostWithUser[]> => {
   try {
+    console.log('Fetching all posts...');
     const result = await query(`
       SELECT 
         p.*,
@@ -51,20 +52,27 @@ export const getAllPosts = async (): Promise<PostWithUser[]> => {
         p.created_at DESC
     `);
 
+    console.log('Query result:', result);
+    console.log('Number of posts found:', result.rows.length);
+
     // Transform the results into the expected format
-    return result.rows.map((row: any) => {
+    const transformedPosts = result.rows.map((row: any) => {
+      // Check if the row already has a user property (from mock DB)
+      if (row.user) {
+        return row;
+      }
+
+      // Extract user fields from the flat structure
       const { 
-        user_id, name, email, avatar, level, joinDate, 
+        name, email, avatar, level, joinDate, 
         verified, badge, user_location, stats, 
         ...postData 
       } = row;
 
       return {
         ...postData,
-        user_id,
-        tags: postData.tags || [],
         user: {
-          id: user_id,
+          id: postData.user_id,
           name,
           email,
           avatar,
@@ -77,6 +85,9 @@ export const getAllPosts = async (): Promise<PostWithUser[]> => {
         }
       };
     });
+
+    console.log('Transformed posts:', transformedPosts);
+    return transformedPosts;
   } catch (error) {
     console.error('Error fetching posts:', error);
     return [];

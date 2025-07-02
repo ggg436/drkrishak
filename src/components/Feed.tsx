@@ -749,12 +749,12 @@ const Feed = () => {
                   <div className="px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="bg-green-100 text-green-800 font-semibold text-sm h-10 w-10 rounded-full flex items-center justify-center">
-                        {post.user.avatar || post.user.name.charAt(0)}
+                        {post.user?.avatar || (post.user?.name ? post.user.name.charAt(0) : 'U')}
                       </div>
                       <div>
                         <div className="flex items-center">
-                          <h3 className="font-semibold">{post.user.name}</h3>
-                          {post.user.verified && (
+                          <h3 className="font-semibold">{post.user?.name || 'Unknown User'}</h3>
+                          {post.user?.verified && (
                             <span className="ml-1 text-blue-500">
                               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
@@ -763,7 +763,7 @@ const Feed = () => {
                           )}
                         </div>
                         <div className="flex items-center text-xs text-gray-500 space-x-2">
-                          <span>{post.user.level}</span>
+                          <span>{post.user?.level || 'Eco User'}</span>
                           <span>•</span>
                           <span>{new Date(post.created_at || '').toLocaleDateString()}</span>
                           {post.location && (
