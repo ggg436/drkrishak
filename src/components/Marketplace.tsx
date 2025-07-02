@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Search, Filter, Star, Heart, ShoppingCart, Leaf, Recycle, Zap, Cloud, Upload, Sparkles, Lock } from 'lucide-react';
+import { Search, Filter, Star, Heart, ShoppingCart, Leaf, Recycle, Zap, Cloud, Upload, Sparkles, Lock, PlusSquare } from 'lucide-react';
 import { useAuth } from './AuthContext';
 import AuthModal from './AuthModal';
 import ProductDetails from './ProductDetails';
 import AddProductModal from './AddProductModal';
 import SellerDashboard from './SellerDashboard';
+// Import FarmingPostModal component
+// Note: This import is commented out until the FarmingPostModal component is created
+// import FarmingPostModal from './FarmingPostModal';
 
 const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,6 +17,8 @@ const Marketplace = () => {
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [showSellerDashboard, setShowSellerDashboard] = useState(false);
   const [userProducts, setUserProducts] = useState<any[]>([]);
+  // Add state for showing the farming post modal
+  const [showFarmingPostModal, setShowFarmingPostModal] = useState(false);
   const { user, isAuthenticated, login } = useAuth();
 
   const categories = [
@@ -253,6 +258,14 @@ const Marketplace = () => {
     setUserProducts(prev => prev.filter(p => p.id !== productId));
   };
 
+  // Add function to handle new farming posts
+  const handlePostSubmitted = (newPost: any) => {
+    // In a real app, you would add this post to your feed
+    console.log('New farming post submitted:', newPost);
+    // You could update your posts state here
+    alert('Farming post submitted successfully!');
+  };
+
   // Show seller dashboard if selected
   if (showSellerDashboard) {
     return (
@@ -277,17 +290,11 @@ const Marketplace = () => {
 
   return (
     <>
-      <div className="space-y-6">
-        {/* Enhanced Header with Gradient Background */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-600 shadow-2xl">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl transform translate-x-32 -translate-y-32"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl transform -translate-x-16 translate-y-16"></div>
-          
-          {/* Content */}
-          <div className="relative px-8 py-8">
-            <div className="flex items-center justify-between">
+      <div className="space-y-8">
+        {/* Hero Banner */}
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl shadow-xl overflow-hidden">
+          <div className="p-8 md:p-12">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="max-w-2xl">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
@@ -327,7 +334,22 @@ const Marketplace = () => {
               </div>
               
               {/* Action Buttons */}
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-4 mt-8 md:mt-0">
+                {/* New Post Button - Update this button */}
+                <button
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setShowAuthModal(true);
+                      return;
+                    }
+                    setShowFarmingPostModal(true);
+                  }}
+                  className="bg-white text-emerald-600 px-6 py-3 rounded-2xl hover:bg-gray-50 transition-all duration-300 font-semibold flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                >
+                  <PlusSquare className="h-5 w-5" />
+                  <span>Create Farming Post</span>
+                </button>
+
                 {isAuthenticated ? (
                   <>
                     <button
@@ -559,6 +581,15 @@ const Marketplace = () => {
         onClose={() => setShowAddProductModal(false)}
         onProductAdded={handleProductAdded}
       />
+
+      {/* Uncomment when FarmingPostModal component is created */}
+      {/* {showFarmingPostModal && (
+        <FarmingPostModal 
+          isOpen={showFarmingPostModal}
+          onClose={() => setShowFarmingPostModal(false)}
+          onPostSubmitted={handlePostSubmitted}
+        />
+      )} */}
     </>
   );
 };

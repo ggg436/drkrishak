@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, 
   MessageCircle, 
@@ -26,8 +26,21 @@ import {
   Leaf,
   Recycle,
   Sun,
-  Cloud
+  Cloud,
+  ShoppingCart,
+  DollarSign,
+  Tag,
+  Calendar,
+  Clock,
+  Store,
+  PlusSquare
 } from 'lucide-react';
+import { useAuth } from './AuthContext';
+import FarmingPostModal from './FarmingPostModal';
+import { getAllPosts, addPost, PostWithUser } from '../services/postService';
+// Import FarmingPostModal component
+// Note: This import is commented out until the FarmingPostModal component is created
+// import FarmingPostModal from './FarmingPostModal';
 
 interface Tag {
   id: string;
@@ -54,7 +67,7 @@ interface Post {
   views: number;
   timestamp: string;
   tags: string[];
-  type: 'text' | 'tip' | 'achievement' | 'question' | 'marketplace';
+  type: 'text' | 'tip' | 'achievement' | 'question' | 'marketplace' | 'community';
   carbonSaved?: string;
   price?: string;
   discount?: string;
@@ -62,7 +75,21 @@ interface Post {
     liked: boolean;
     bookmarked: boolean;
     shared: boolean;
-  }
+  };
+  // For marketplace posts
+  product?: {
+    condition?: string;
+    category?: string;
+    inStock?: number;
+    shipping?: string;
+  };
+  // For community posts
+  community?: {
+    name?: string;
+    type?: 'event' | 'discussion' | 'resource';
+    eventDate?: string;
+    eventLocation?: string;
+  };
 }
 
 const Feed = () => {
@@ -71,8 +98,31 @@ const Feed = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const [attachments, setAttachments] = useState([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [postSection, setPostSection] = useState('feed'); // 'feed', 'marketplace', or 'community'
   const [postType, setPostType] = useState('text');
+  
+  // Marketplace specific fields
+  const [productPrice, setProductPrice] = useState('');
+  const [productCondition, setProductCondition] = useState('new');
+  const [productCategory, setProductCategory] = useState('');
+  const [productDiscount, setProductDiscount] = useState('');
+  
+  // Community specific fields
+  const [selectedCommunity, setSelectedCommunity] = useState('');
+  const [communityPostType, setCommunityPostType] = useState('discussion');
+  const [eventDate, setEventDate] = useState('');
+  const [eventTime, setEventTime] = useState('');
+  const [eventLocation, setEventLocation] = useState('');
+
+  // Add state for showing the farming post modal
+  const [showFarmingPostModal, setShowFarmingPostModal] = useState(false);
+
+  // Add state for Supabase posts
+  const [posts, setPosts] = useState<PostWithUser[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const privacyOptions = [
     { id: 'public', label: 'Public', icon: Globe, description: 'Anyone can see this post' },
@@ -86,6 +136,12 @@ const Feed = () => {
     { id: 'achievement', label: 'Harvest', icon: Award, color: 'yellow' },
     { id: 'question', label: 'Question', icon: MessageCircle, color: 'purple' }
   ];
+  
+  const postSections = [
+    { id: 'feed', label: 'Feed', icon: Leaf, color: 'green' },
+    { id: 'marketplace', label: 'Marketplace', icon: ShoppingCart, color: 'blue' },
+    { id: 'community', label: 'Community', icon: Users, color: 'purple' }
+  ];
 
   const suggestedTags = [
     'OrganicFarming', 'Pesticides', 'Fertilizers', 'CropRotation', 
@@ -93,139 +149,49 @@ const Feed = () => {
     'Harvest', 'FarmTools', 'Livestock', 'WaterConservation'
   ];
 
+  const marketplaceCategories = [
+    'FarmTools', 'Machinery', 'Seeds', 'Organic', 'Fertilizers', 
+    'SecondHand', 'RenewableEnergy', 'Irrigation', 'Livestock'
+  ];
+
+  const communityList = [
+    { id: '1', name: 'Zero Waste Warriors' },
+    { id: '2', name: 'Organic Farming Network' },
+    { id: '3', name: 'Sustainable Agriculture' },
+    { id: '4', name: 'Local Farmers Market' },
+    { id: '5', name: 'Climate Action Network' }
+  ];
+
   const emojis = ['🌱', '🌾', '🌿', '🚜', '🧑‍🌾', '🐄', '🐓', '🌽', '🥔', '🥕', '☀️', '🌧️'];
 
-  const posts: Post[] = [
-    {
-      id: 1,
-      user: {
-        name: 'Rajesh Kumar',
-        avatar: 'RK',
-        badge: 'Organic Farmer',
-        location: 'Bihar, India',
-        verified: true,
-        level: 'Master Farmer'
-      },
-      content: 'Just completed my first season using organic pesticides on my rice fields. The yield was almost the same as with chemical pesticides, but soil health has improved significantly. Here are my top tips: 1) Neem oil spray works wonders, 2) Crop rotation is essential, 3) Introduce beneficial insects, 4) Use companion planting, 5) Regular monitoring is key.',
-      image: 'https://images.pexels.com/photos/2933243/pexels-photo-2933243.jpeg?auto=compress&cs=tinysrgb&w=800',
-      likes: 127,
-      comments: 23,
-      shares: 8,
-      views: 1240,
-      timestamp: '2 hours ago',
-      tags: ['OrganicFarming', 'PestControl', 'SustainableAgriculture'],
-      type: 'tip',
-      carbonSaved: '2.3kg CO₂',
-      engagement: {
-        liked: false,
-        bookmarked: false,
-        shared: false
-      }
-    },
-    {
-      id: 2,
-      user: {
-        name: 'AgriTools Co.',
-        avatar: 'AT',
-        badge: 'Verified Seller',
-        location: 'Delhi, India',
-        verified: true,
-        level: 'Business Partner'
-      },
-      content: 'New in our agricultural marketplace! Traditional hand-forged sickles made by local artisans. Perfect balance, sharp edge, and comfortable wooden handle. Each purchase supports rural craftsmen!',
-      image: 'https://images.pexels.com/photos/296230/pexels-photo-296230.jpeg?auto=compress&cs=tinysrgb&w=800',
-      likes: 89,
-      comments: 15,
-      shares: 12,
-      views: 890,
-      timestamp: '4 hours ago',
-      tags: ['FarmTools', 'Traditional', 'Handcrafted'],
-      type: 'marketplace',
-      price: '₹899',
-      discount: '20% OFF',
-      engagement: {
-        liked: true,
-        bookmarked: false,
-        shared: false
-      }
-    },
-    {
-      id: 3,
-      user: {
-        name: 'Meera Patel',
-        avatar: 'MP',
-        badge: 'Irrigation Expert',
-        location: 'Gujarat, India',
-        verified: true,
-        level: 'Water Conservation Pioneer'
-      },
-      content: 'Drip irrigation system installation complete! Our farm is now using 60% less water with better crop health. The installation took just 3 days and the difference is already visible. Sharing data - we\'re seeing more consistent growth and fewer disease issues with targeted watering.',
-      image: 'https://images.pexels.com/photos/96715/pexels-photo-96715.jpeg?auto=compress&cs=tinysrgb&w=800',
-      likes: 203,
-      comments: 34,
-      shares: 19,
-      views: 2100,
-      timestamp: '6 hours ago',
-      tags: ['Irrigation', 'WaterConservation', 'ModernFarming'],
-      type: 'achievement',
-      carbonSaved: '15.2kg CO₂/day',
-      engagement: {
-        liked: false,
-        bookmarked: true,
-        shared: false
-      }
-    },
-    {
-      id: 4,
-      user: {
-        name: 'Dr. Sunil Verma',
-        avatar: 'SV',
-        badge: 'Agricultural Scientist',
-        location: 'Punjab, India',
-        verified: true,
-        level: 'Expert'
-      },
-      content: 'Q: I\'m seeing unusual yellow spots on my wheat crop leaves. They started appearing after last week\'s rain. The spots have a rust-like appearance and seem to be spreading. Has anyone encountered this issue? What could be causing this and what treatment would you recommend?',
-      image: 'https://images.pexels.com/photos/688668/pexels-photo-688668.jpeg?auto=compress&cs=tinysrgb&w=800',
-      likes: 45,
-      comments: 28,
-      shares: 7,
-      views: 876,
-      timestamp: '1 day ago',
-      tags: ['PlantDisease', 'WheatFarming', 'PestControl'],
-      type: 'question',
-      engagement: {
-        liked: true,
-        bookmarked: true,
-        shared: false
-      }
-    },
-    {
-      id: 5,
-      user: {
-        name: 'Ananya Singh',
-        avatar: 'AS',
-        badge: 'Organic Certification',
-        location: 'Uttarakhand, India',
-        verified: false,
-        level: 'Rising Farmer'
-      },
-      content: 'Has anyone tried using companion planting with marigolds to control pests in vegetable gardens? I\'ve heard they help repel certain insects, but I\'m not sure about the best arrangement. Should I plant them around the border or interspersed throughout? Also, how many marigold plants would be needed for a 20x30 foot vegetable plot?',
-      image: 'https://images.pexels.com/photos/5731861/pexels-photo-5731861.jpeg?auto=compress&cs=tinysrgb&w=800',
-      likes: 67,
-      comments: 42,
-      shares: 12,
-      views: 932,
-      timestamp: '2 days ago',
-      tags: ['CompanionPlanting', 'PestControl', 'OrganicGardening'],
-      type: 'question',
-      engagement: {
-        liked: false,
-        bookmarked: false,
-        shared: false
-      }
-    }
+  const productConditions = [
+    { id: 'new', label: 'New' },
+    { id: 'likenew', label: 'Like New' },
+    { id: 'good', label: 'Good' },
+    { id: 'used', label: 'Used' },
+    { id: 'refurbished', label: 'Refurbished' }
   ];
+
+  // Fetch posts on component mount
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    setIsLoadingPosts(true);
+    setError(null);
+    
+    try {
+      // Fetch posts from the real Neon database
+      const fetchedPosts = await getAllPosts();
+      setPosts(fetchedPosts);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      setError('Failed to load posts. Please try again.');
+    } finally {
+      setIsLoadingPosts(false);
+    }
+  };
 
   const handleTagAdd = (tag: string) => {
     if (!selectedTags.includes(tag) && selectedTags.length < 5) {
@@ -243,39 +209,217 @@ const Feed = () => {
     setShowEmojiPicker(false);
   };
 
+  const handleAttachmentAdd = (file: string) => {
+    if (attachments.length < 4) {
+      setAttachments([...attachments, file]);
+    }
+  };
+
+  const handleAttachmentRemove = (index: number) => {
+    const newAttachments = [...attachments];
+    newAttachments.splice(index, 1);
+    setAttachments(newAttachments);
+  };
+
   const getPostTypeColor = (type: string) => {
     const typeObj = postTypes.find(t => t.id === type);
     return typeObj ? typeObj.color : 'gray';
+  };
+
+  const handleSubmitPost = () => {
+    if (!user) {
+      alert('Please log in to post');
+      return;
+    }
+
+      // Create the base post
+  const newPostData: any = {
+    user_id: user.id,
+    content: newPost,
+    tags: selectedTags,
+    post_type: postType,
+    image_url: attachments[0] || '',
+  };
+
+    // Add section-specific data
+    if (postSection === 'marketplace') {
+      newPostData.post_type = 'marketplace';
+      newPostData.price = productPrice;
+      newPostData.discount = productDiscount;
+      newPostData.product_details = {
+        condition: productCondition,
+        category: productCategory,
+        inStock: 1,
+        shipping: 'Free shipping'
+      };
+    } else if (postSection === 'community') {
+      newPostData.post_type = 'community';
+      newPostData.community_details = {
+        name: selectedCommunity,
+        type: communityPostType,
+        eventDate: communityPostType === 'event' ? `${eventDate} ${eventTime}` : undefined,
+        eventLocation: communityPostType === 'event' ? eventLocation : undefined
+      };
+    }
+
+    // Add post to Supabase
+    addPost(newPostData as any).then(() => {
+      // Refresh posts from the server
+      fetchPosts();
+      
+      // Reset form
+      setNewPost('');
+      setSelectedTags([]);
+      setAttachments([]);
+      setProductPrice('');
+      setProductDiscount('');
+      setProductCondition('new');
+      setProductCategory('');
+      setSelectedCommunity('');
+      setCommunityPostType('discussion');
+      setEventDate('');
+      setEventTime('');
+      setEventLocation('');
+      
+      alert('Post submitted successfully!');
+    }).catch(err => {
+      console.error('Error submitting post:', err);
+      alert('Error submitting post. Please try again.');
+    });
+  };
+
+  // Add function to handle new posts from FarmingPostModal
+  const handlePostSubmitted = async (postData: any) => {
+    if (!user) {
+      alert('Please log in to post');
+      return;
+    }
+
+    // Format for Supabase
+    const newPostData = {
+      user_id: user.id,
+      content: postData.content,
+      image_url: postData.image,
+      tags: postData.tags,
+      post_type: postData.type,
+      location: postData.location || null
+    };
+
+    // Add post to Supabase
+    try {
+      await addPost(newPostData as any);
+      
+      // Refresh posts from the server
+      fetchPosts();
+      
+      alert('Post submitted successfully!');
+    } catch (err) {
+      console.error('Error submitting post:', err);
+      alert('Failed to submit post. Please try again.');
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Enhanced Create Post */}
       <div className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
-        {/* Post Type Selector */}
+        {/* Post Section Selector */}
         <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center space-x-2 mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Create Post</h3>
-            <div className="flex-1"></div>
-            <div className="flex items-center space-x-1">
-              {postTypes.map((type) => {
-                const Icon = type.icon;
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">Create Post</h3>
+              
+              {/* Post Button */}
+              <button 
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors shadow-sm"
+                onClick={() => setShowFarmingPostModal(true)}
+              >
+                <PlusSquare className="h-5 w-5" />
+                <span className="font-medium">Post</span>
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-4 pb-2">
+              {postSections.map((section) => {
+                const Icon = section.icon;
                 return (
                   <button
-                    key={type.id}
-                    onClick={() => setPostType(type.id)}
-                    className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                      postType === type.id
-                        ? `bg-${type.color}-100 text-${type.color}-700 border border-${type.color}-200`
+                    key={section.id}
+                    onClick={() => setPostSection(section.id)}
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-lg transition-all duration-200 ${
+                      postSection === section.id 
+                        ? `bg-${section.color}-100 text-${section.color}-700 border border-${section.color}-200` 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    <Icon className="h-3 w-3" />
-                    <span>{type.label}</span>
+                    <Icon className="h-4 w-4" />
+                    <span className="font-medium">{section.label}</span>
                   </button>
                 );
               })}
             </div>
+            
+            {/* Post Type Selector - Only show for Feed */}
+            {postSection === 'feed' && (
+              <div className="flex items-center space-x-1 overflow-x-auto py-1 -mx-1 px-1">
+                {postTypes.map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.id}
+                      onClick={() => setPostType(type.id)}
+                      className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                        postType === type.id
+                          ? `bg-${type.color}-100 text-${type.color}-700 border border-${type.color}-200`
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Icon className="h-3 w-3" />
+                      <span>{type.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            
+            {/* Community Type Selector */}
+            {postSection === 'community' && (
+              <div className="flex items-center space-x-1 overflow-x-auto py-1 -mx-1 px-1">
+                <button
+                  onClick={() => setCommunityPostType('discussion')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                    communityPostType === 'discussion'
+                      ? `bg-purple-100 text-purple-700 border border-purple-200`
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  <span>Discussion</span>
+                </button>
+                <button
+                  onClick={() => setCommunityPostType('event')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                    communityPostType === 'event'
+                      ? `bg-yellow-100 text-yellow-700 border border-yellow-200`
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Calendar className="h-3 w-3" />
+                  <span>Event</span>
+                </button>
+                <button
+                  onClick={() => setCommunityPostType('resource')}
+                  className={`flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                    communityPostType === 'resource'
+                      ? `bg-blue-100 text-blue-700 border border-blue-200`
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <FileText className="h-3 w-3" />
+                  <span>Resource</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -292,7 +436,15 @@ const Feed = () => {
               {/* Main Text Area */}
               <div className="relative">
                 <textarea
-                  placeholder={`Share your ${postType === 'tip' ? 'farming tips' : postType === 'achievement' ? 'harvest results' : postType === 'question' ? 'agricultural questions' : 'farming experiences or insights'}...`}
+                  placeholder={
+                    postSection === 'marketplace' 
+                      ? 'Describe your product...' 
+                      : postSection === 'community' 
+                        ? communityPostType === 'event' 
+                          ? 'Share event details...' 
+                          : 'Share with your community...'
+                        : `Share your ${postType === 'tip' ? 'farming tips' : postType === 'achievement' ? 'harvest results' : postType === 'question' ? 'agricultural questions' : 'farming experiences or insights'}...`
+                  }
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
                   className="w-full p-4 border-2 border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-800 placeholder-gray-500"
@@ -304,6 +456,148 @@ const Feed = () => {
                   {newPost.length}/500
                 </div>
               </div>
+              
+              {/* Section-specific inputs */}
+              {/* Marketplace Fields */}
+              {postSection === 'marketplace' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Price</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <DollarSign className="h-4 w-4 text-gray-500" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="0.00"
+                        value={productPrice}
+                        onChange={(e) => setProductPrice(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Discount (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., 20% OFF"
+                      value={productDiscount}
+                      onChange={(e) => setProductDiscount(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Condition</label>
+                    <select
+                      value={productCondition}
+                      onChange={(e) => setProductCondition(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      {productConditions.map(condition => (
+                        <option key={condition.id} value={condition.id}>
+                          {condition.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Category</label>
+                    <select
+                      value={productCategory}
+                      onChange={(e) => setProductCategory(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Select Category</option>
+                      {marketplaceCategories.map(category => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+              
+              {/* Community Fields */}
+              {postSection === 'community' && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">Community</label>
+                    <select
+                      value={selectedCommunity}
+                      onChange={(e) => setSelectedCommunity(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Select Community</option>
+                      {communityList.map(community => (
+                        <option key={community.id} value={community.name}>
+                          {community.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Event-specific Fields */}
+                  {communityPostType === 'event' && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Date</label>
+                        <input
+                          type="date"
+                          value={eventDate}
+                          onChange={(e) => setEventDate(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Time</label>
+                        <input
+                          type="time"
+                          value={eventTime}
+                          onChange={(e) => setEventTime(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="col-span-2 space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">Location</label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <MapPin className="h-4 w-4 text-gray-500" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Event location"
+                            value={eventLocation}
+                            onChange={(e) => setEventLocation(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Attachment Preview */}
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((attachment, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={attachment} 
+                        alt="Attachment" 
+                        className="w-24 h-24 object-cover rounded-lg border border-gray-200" 
+                      />
+                      <button
+                        onClick={() => handleAttachmentRemove(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Tags Section */}
               {selectedTags.length > 0 && (
@@ -365,223 +659,217 @@ const Feed = () => {
 
               {/* Action Bar */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-4">
-                  {/* Media Buttons */}
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors group">
-                    <div className="p-2 rounded-lg group-hover:bg-green-50 transition-colors">
-                      <Camera className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-medium">Photo</span>
+                {/* Media Buttons with better alignment */}
+                <div className="flex items-center -ml-2">
+                  <button className="inline-flex items-center justify-center p-2 text-gray-600 hover:text-green-600 transition-colors">
+                    <Camera className="h-5 w-5" />
+                    <span className="ml-2 text-sm">Photo</span>
                   </button>
                   
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors group">
-                    <div className="p-2 rounded-lg group-hover:bg-blue-50 transition-colors">
-                      <Video className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-medium">Video</span>
+                  <button className="inline-flex items-center justify-center p-2 ml-3 text-gray-600 hover:text-blue-600 transition-colors">
+                    <Video className="h-5 w-5" />
+                    <span className="ml-2 text-sm">Video</span>
                   </button>
                   
                   <button 
                     onClick={() => setShowTagSuggestions(!showTagSuggestions)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors group"
+                    className="inline-flex items-center justify-center p-2 ml-3 text-gray-600 hover:text-purple-600 transition-colors"
                   >
-                    <div className="p-2 rounded-lg group-hover:bg-purple-50 transition-colors">
-                      <Hash className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-medium">Tags</span>
+                    <Hash className="h-5 w-5" />
+                    <span className="ml-2 text-sm">Tags</span>
                   </button>
                   
                   <button 
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="flex items-center space-x-2 text-gray-600 hover:text-yellow-600 transition-colors group"
+                    className="inline-flex items-center justify-center p-2 ml-3 text-gray-600 hover:text-yellow-600 transition-colors"
                   >
-                    <div className="p-2 rounded-lg group-hover:bg-yellow-50 transition-colors">
-                      <Smile className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-medium">Emoji</span>
+                    <Smile className="h-5 w-5" />
+                    <span className="ml-2 text-sm">Emoji</span>
                   </button>
                   
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors group">
-                    <div className="p-2 rounded-lg group-hover:bg-red-50 transition-colors">
-                      <MapPin className="h-5 w-5" />
+                  <button className="inline-flex items-center justify-center p-2 ml-3 text-gray-600 hover:text-red-600 transition-colors">
+                    <MapPin className="h-5 w-5" />
+                    <span className="ml-2 text-sm">Location</span>
+                  </button>
+
+                  {/* Privacy Selector integrated in the same row for better alignment */}
+                  <div className="relative ml-3 pl-3 border-l border-gray-200">
+                    <div className="flex items-center">
+                      <Globe className="h-5 w-5 text-gray-600 mr-2" />
+                      <select
+                        value={postPrivacy}
+                        onChange={(e) => setPostPrivacy(e.target.value)}
+                        className="appearance-none bg-transparent text-gray-700 pr-6 py-1 text-sm focus:outline-none cursor-pointer"
+                      >
+                        {privacyOptions.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                    <span className="text-sm font-medium">Location</span>
-                  </button>
-                </div>
-
-                {/* Privacy & Share */}
-                <div className="flex items-center space-x-3">
-                  {/* Privacy Selector */}
-                  <div className="relative">
-                    <select
-                      value={postPrivacy}
-                      onChange={(e) => setPostPrivacy(e.target.value)}
-                      className="appearance-none bg-gray-100 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer"
-                    >
-                      {privacyOptions.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
                   </div>
-
-                  {/* Share Button */}
-                  <button className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-2.5 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2">
-                    <Send className="h-4 w-4" />
-                    <span>Share</span>
-                  </button>
                 </div>
+
+                {/* Post creation is handled by the Post button at the top */}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Posts */}
-      {posts.map((post) => (
-        <div key={post.id} className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden hover:shadow-xl transition-all duration-300">
-          {/* Post Header */}
-          <div className="p-6 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
-                    {post.user.avatar}
+      {/* Post display section */}
+      {isLoadingPosts ? (
+        <div className="flex justify-center items-center py-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 p-4 rounded-lg text-red-800 my-4">
+          {error}
+          <button
+            onClick={fetchPosts}
+            className="ml-2 text-blue-600 hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      ) : (
+        <>
+          {posts.length === 0 ? (
+            <div className="bg-gray-50 rounded-lg p-8 text-center my-6">
+              <h3 className="text-lg font-medium text-gray-600">No posts yet</h3>
+              <p className="text-gray-500 mt-2">Be the first to share something!</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {posts.map(post => (
+                // Render each post with appropriate styling based on type
+                <div key={post.id} className="bg-white rounded-2xl shadow-md overflow-hidden border border-green-100">
+                  {/* Post header */}
+                  <div className="px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-green-100 text-green-800 font-semibold text-sm h-10 w-10 rounded-full flex items-center justify-center">
+                        {post.user.avatar || post.user.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="flex items-center">
+                          <h3 className="font-semibold">{post.user.name}</h3>
+                          {post.user.verified && (
+                            <span className="ml-1 text-blue-500">
+                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                              </svg>
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center text-xs text-gray-500 space-x-2">
+                          <span>{post.user.level}</span>
+                          <span>•</span>
+                          <span>{new Date(post.created_at || '').toLocaleDateString()}</span>
+                          {post.location && (
+                            <>
+                              <span>•</span>
+                              <span className="flex items-center">
+                                <MapPin className="h-3 w-3 mr-1" />
+                                {post.location}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </button>
                   </div>
-                  {post.user.verified && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Award className="h-3 w-3 text-white" />
+                  
+                  {/* Post content */}
+                  <div className="px-6 py-2">
+                    <p className="text-gray-800 whitespace-pre-line">{post.content}</p>
+                    
+                    {/* Tags */}
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {post.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-xs font-medium"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Post image if any */}
+                  {post.image_url && (
+                    <div className="mt-2">
+                      <img
+                        src={post.image_url}
+                        alt="Post"
+                        className="w-full object-cover max-h-96"
+                      />
                     </div>
                   )}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="font-semibold text-gray-800">{post.user.name}</h3>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      post.type === 'tip' ? 'bg-green-100 text-green-700' :
-                      post.type === 'achievement' ? 'bg-yellow-100 text-yellow-700' :
-                      post.type === 'marketplace' ? 'bg-blue-100 text-blue-700' :
-                      post.type === 'question' ? 'bg-purple-100 text-purple-700' :
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {post.user.badge}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <span>{post.timestamp}</span>
-                    <span>•</span>
-                    <span>{post.user.location}</span>
-                    <span>•</span>
-                    <div className="flex items-center space-x-1">
-                      <Eye className="h-3 w-3" />
-                      <span>{post.views.toLocaleString()}</span>
+                  
+                  {/* Post stats */}
+                  <div className="px-6 py-4 border-t border-gray-100 text-xs text-gray-500">
+                    <div className="flex justify-between items-center">
+                      <div className="flex space-x-4">
+                        <span className="flex items-center">
+                          <Eye className="h-4 w-4 mr-1" />
+                          {post.views || 0} views
+                        </span>
+                        <span className="flex items-center">
+                          <ThumbsUp className="h-4 w-4 mr-1" />
+                          {post.likes || 0} likes
+                        </span>
+                        <span className="flex items-center">
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          {post.comments || 0} comments
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                {post.carbonSaved && (
-                  <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
-                    <Leaf className="h-3 w-3" />
-                    <span>{post.carbonSaved}</span>
+                  
+                  {/* Action buttons */}
+                  <div className="px-6 py-3 border-t border-gray-100 flex justify-between">
+                    <button className="flex items-center space-x-1 text-gray-500 hover:text-red-500">
+                      <Heart className="h-5 w-5" />
+                      <span className="text-sm font-medium">Like</span>
+                    </button>
+                    
+                    <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500">
+                      <MessageCircle className="h-5 w-5" />
+                      <span className="text-sm font-medium">Comment</span>
+                    </button>
+                    
+                    <button className="flex items-center space-x-1 text-gray-500 hover:text-green-500">
+                      <Share2 className="h-5 w-5" />
+                      <span className="text-sm font-medium">Share</span>
+                    </button>
+                    
+                    <button className="flex items-center space-x-1 text-gray-500 hover:text-yellow-500">
+                      <Bookmark className="h-5 w-5" />
+                      <span className="text-sm font-medium">Save</span>
+                    </button>
                   </div>
-                )}
-                <button className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
-                  <MoreHorizontal className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Post Content */}
-          <div className="px-6 pb-4">
-            <p className="text-gray-800 leading-relaxed mb-3">{post.content}</p>
-            
-            {/* Special Content for Marketplace */}
-            {post.type === 'marketplace' && (
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full font-semibold">
-                  {post.price}
                 </div>
-                {post.discount && (
-                  <div className="bg-red-50 text-red-700 px-3 py-1 rounded-full font-semibold text-sm">
-                    {post.discount}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {post.tags.map((tag) => (
-                <span key={tag} className="text-blue-600 text-sm hover:underline cursor-pointer font-medium">
-                  #{tag}
-                </span>
               ))}
             </div>
-          </div>
-
-          {/* Post Image */}
-          {post.image && (
-            <div className="px-6 pb-4">
-              <img
-                src={post.image}
-                alt="Post content"
-                className="w-full h-64 object-cover rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
-              />
-            </div>
           )}
+        </>
+      )}
 
-          {/* Enhanced Post Actions */}
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-6">
-                <button className={`flex items-center space-x-2 transition-all duration-200 group ${
-                  post.engagement.liked ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-                }`}>
-                  <div className="p-2 rounded-full group-hover:bg-red-50 transition-colors">
-                    <Heart className={`h-5 w-5 ${post.engagement.liked ? 'fill-current' : ''}`} />
-                  </div>
-                  <span className="text-sm font-medium">{post.likes}</span>
-                </button>
-                
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-all duration-200 group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-50 transition-colors">
-                    <MessageCircle className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium">{post.comments}</span>
-                </button>
-                
-                <button className={`flex items-center space-x-2 transition-all duration-200 group ${
-                  post.engagement.shared ? 'text-green-500' : 'text-gray-600 hover:text-green-500'
-                }`}>
-                  <div className="p-2 rounded-full group-hover:bg-green-50 transition-colors">
-                    <Share2 className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium">{post.shares}</span>
-                </button>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <button className={`p-2 rounded-full transition-all duration-200 ${
-                  post.engagement.bookmarked 
-                    ? 'text-yellow-500 bg-yellow-50' 
-                    : 'text-gray-600 hover:text-yellow-500 hover:bg-yellow-50'
-                }`}>
-                  <Bookmark className={`h-5 w-5 ${post.engagement.bookmarked ? 'fill-current' : ''}`} />
-                </button>
-                
-                {post.type === 'marketplace' && (
-                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                    View Product
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+      {/* Farming Post Modal */}
+      {showFarmingPostModal && (
+        <FarmingPostModal
+          isOpen={showFarmingPostModal}
+          onClose={() => setShowFarmingPostModal(false)}
+          onPostSubmitted={handlePostSubmitted}
+        />
+      )}
     </div>
   );
 };

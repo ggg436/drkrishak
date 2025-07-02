@@ -6,7 +6,10 @@
     "settings": "Settings",
     "signOut": "Sign Out",
     "carbonSaved": "Carbon Saved",
-    "ecoPoints": "Eco Points"
+    "ecoPoints": "Eco Points",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "quickAccess": "Quick Access"
   },
   "doctor": {
     "title": "Plant Doctor",
@@ -25,6 +28,16 @@
     "showHideJson": "Show/Hide JSON data",
     "treatmentPrevention": "Treatment & Prevention:",
     "loadingTips": "Loading treatment and prevention tips..."
+  },
+  "disease": {
+    "title": "Crop Disease Identification",
+    "upload": "Upload an image of your crop to identify diseases and get helpful information.",
+    "identify": "Identify Crop",
+    "processing": "Processing...",
+    "result": "Identification Results",
+    "noResults": "No crop identified. Please try with a different image.",
+    "showHideJson": "Show/Hide JSON data",
+    "learnMore": "Learn more"
   },
   "language": {
     "select": "Select Language",

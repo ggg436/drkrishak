@@ -8,10 +8,9 @@ import Feed from './components/Feed';
 import Marketplace from './components/Marketplace';
 import Profile from './components/Profile';
 import CarbonCalculator from './components/CarbonCalculator';
-import Communities from './components/Communities';
 import Events from './components/Events';
 import Messages from './components/Messages';
-import Doctor from './components/Doctor';
+import Disease from './components/Disease';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -31,10 +30,8 @@ function App() {
         return <Profile />;
       case 'calculator':
         return <CarbonCalculator />;
-      case 'communities':
-        return <Communities />;
-      case 'doctor':
-        return <Doctor />;
+      case 'disease':
+        return <Disease />;
       case 'events':
         return <Events />;
       case 'messages':

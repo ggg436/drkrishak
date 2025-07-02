@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-interface User {
+export interface User {
   id: number;
   name: string;
   email: string;
   avatar: string;
   level: string;
   joinDate: string;
+  verified?: boolean;
+  badge?: string;
+  location?: string;
   stats: {
     carbonSaved: number;
     ecoPoints: number;

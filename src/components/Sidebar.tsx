@@ -24,8 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) =>
   const menuItems = [
     { id: 'feed', label: 'Feed', icon: Home },
     { id: 'marketplace', label: 'Green Marketplace', icon: ShoppingBag },
-    { id: 'communities', label: 'Communities', icon: Users },
-    { id: 'doctor', label: 'Doctor', icon: Award }, // New Doctor navbar item
+    { id: 'disease', label: 'Disease', icon: Zap },
     { id: 'events', label: 'Events', icon: Calendar },
     { id: 'calculator', label: 'Carbon Calculator', icon: Calculator },
     { id: 'messages', label: 'Messages', icon: MessageSquare },
