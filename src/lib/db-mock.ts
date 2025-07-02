@@ -63,6 +63,40 @@ const initMockDatabase = (): MockDatabase => {
           postsShared: 25,
           communitiesJoined: 5
         })
+      },
+      {
+        id: 3,
+        name: 'Organic Grower',
+        email: 'organic@example.com',
+        avatar: 'OG',
+        level: 'Eco Professional',
+        joindate: new Date().toISOString(),
+        verified: true,
+        badge: 'Organic',
+        location: 'Green Valley',
+        stats: JSON.stringify({
+          carbonSaved: 35,
+          ecoPoints: 320,
+          postsShared: 18,
+          communitiesJoined: 4
+        })
+      },
+      {
+        id: 4,
+        name: 'Sustainability Advocate',
+        email: 'sustainable@example.com',
+        avatar: 'SA',
+        level: 'Eco Influencer',
+        joindate: new Date().toISOString(),
+        verified: true,
+        badge: 'Advocate',
+        location: 'Eco City',
+        stats: JSON.stringify({
+          carbonSaved: 75,
+          ecoPoints: 650,
+          postsShared: 42,
+          communitiesJoined: 8
+        })
       }
     ],
     posts: [
@@ -91,6 +125,100 @@ const initMockDatabase = (): MockDatabase => {
         shares: 12,
         views: 245,
         created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // 1 day ago
+      },
+      {
+        id: 3,
+        user_id: 3,
+        content: 'Has anyone tried using companion planting with marigolds to deter pests? I\'m looking for natural pest control methods for my vegetable garden.',
+        image_url: 'https://images.unsplash.com/photo-1597857506137-d16ba31b3d8e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+        tags: ['PestControl', 'OrganicFarming', 'CompanionPlanting'],
+        post_type: 'question',
+        likes: 8,
+        comments: 12,
+        shares: 3,
+        views: 98,
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // 2 days ago
+      },
+      {
+        id: 4,
+        user_id: 4,
+        content: 'Join our upcoming workshop on sustainable irrigation techniques! Learn how to reduce water usage while maintaining healthy crops. Limited spots available.',
+        image_url: 'https://images.unsplash.com/photo-1591339815636-8c95a3f749a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+        tags: ['WaterConservation', 'Sustainability', 'Workshop'],
+        post_type: 'community',
+        likes: 27,
+        comments: 5,
+        shares: 18,
+        views: 210,
+        community_details: JSON.stringify({
+          name: 'Sustainable Agriculture',
+          type: 'event',
+          eventDate: '2023-11-15 10:00',
+          eventLocation: 'Community Farm Center'
+        }),
+        created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() // 3 days ago
+      },
+      {
+        id: 5,
+        user_id: 2,
+        content: 'Selling organic fertilizer made from composted plant materials. 100% natural and chemical-free. Great for vegetable gardens!',
+        image_url: 'https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1471&q=80',
+        tags: ['OrganicFertilizer', 'Compost', 'SoilHealth'],
+        post_type: 'marketplace',
+        likes: 14,
+        comments: 3,
+        shares: 5,
+        views: 156,
+        price: '25.99',
+        discount: '10% OFF',
+        product_details: JSON.stringify({
+          condition: 'new',
+          category: 'Fertilizers',
+          inStock: 15,
+          shipping: 'Free shipping'
+        }),
+        created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() // 4 days ago
+      },
+      {
+        id: 6,
+        user_id: 3,
+        content: 'I\'ve been experimenting with vertical gardening to maximize space in my small urban farm. Here\'s a look at my setup using recycled materials!',
+        image_url: 'https://images.unsplash.com/photo-1591857177580-dc82b9ac4e1e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1472&q=80',
+        tags: ['VerticalGardening', 'UrbanFarming', 'Recycling'],
+        post_type: 'text',
+        likes: 42,
+        comments: 8,
+        shares: 15,
+        views: 278,
+        carbon_saved: '5kg',
+        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() // 5 days ago
+      },
+      {
+        id: 7,
+        user_id: 1,
+        content: 'Looking for recommendations on drought-resistant vegetable varieties that work well in hot climates. Any suggestions from fellow farmers?',
+        image_url: null,
+        tags: ['DroughtResistant', 'HotClimate', 'SeedSelection'],
+        post_type: 'question',
+        likes: 19,
+        comments: 23,
+        shares: 7,
+        views: 185,
+        created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString() // 6 days ago
+      },
+      {
+        id: 8,
+        user_id: 4,
+        content: 'Our community garden project has saved over 500kg of carbon this month! So proud of everyone involved in making our neighborhood greener.',
+        image_url: 'https://images.unsplash.com/photo-1593114970899-95c26e8d8841?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80',
+        tags: ['CommunityGarden', 'CarbonReduction', 'Sustainability'],
+        post_type: 'achievement',
+        likes: 56,
+        comments: 12,
+        shares: 28,
+        views: 342,
+        carbon_saved: '500kg',
+        created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days ago
       }
     ]
   };
@@ -249,10 +377,21 @@ export const pool = {
       query(text, params)
         .then(result => callback(null, result))
         .catch(err => callback(err, { rows: [], rowCount: 0, command: '', oid: 0, fields: [] }));
-      return;
+    } else {
+      return {
+        then: (resolve: (result: QueryResult) => void) => {
+          query(text, params)
+            .then(resolve)
+            .catch(err => {
+              console.error('Error in pool.query:', err);
+              resolve({ rows: [], rowCount: 0, command: '', oid: 0, fields: [] });
+            });
+          return {
+            catch: (reject: (err: Error) => void) => {}
+          };
+        }
+      };
     }
-    
-    return query(text, params);
   },
   end: () => Promise.resolve()
 }; 
