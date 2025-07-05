@@ -43,5 +43,29 @@
     "select": "भाषा छान्नुहोस्",
     "en": "English",
     "ne": "नेपाली"
+  },
+  "impact": {
+    "title": "तपाईंको प्रभाव",
+    "carbonSaved": "बचत गरिएको कार्बन",
+    "tons": "टन",
+    "ecoPoints": "इको अंक"
+  },
+  "sidebar": {
+    "feed": "फिड",
+    "marketplace": "हरित बजार",
+    "disease": "रोग",
+    "events": "कार्यक्रमहरू",
+    "calculator": "कार्बन क्यालकुलेटर",
+    "messages": "सन्देशहरू",
+    "profile": "प्रोफाइल"
+  },
+  "challenge": {
+    "monthly": "मासिक चुनौती",
+    "plastic": "प्लास्टिकको प्रयोग ५०% ले घटाउनुहोस्",
+    "complete": "पूरा"
+  },
+  "upload": {
+    "dragDrop": "अपलोड गर्न क्लिक गर्नुहोस् वा तान्नुहोस् र छोड्नुहोस्",
+    "fileTypes": "PNG, JPG, GIF १० MB सम्म"
   }
 } 

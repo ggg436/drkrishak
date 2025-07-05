@@ -43,5 +43,29 @@
     "select": "Select Language",
     "en": "English",
     "ne": "नेपाली"
+  },
+  "impact": {
+    "title": "Your Impact",
+    "carbonSaved": "Carbon Saved",
+    "tons": "tons",
+    "ecoPoints": "Eco Points"
+  },
+  "sidebar": {
+    "feed": "Feed",
+    "marketplace": "Green Marketplace",
+    "disease": "Disease",
+    "events": "Events",
+    "calculator": "Carbon Calculator",
+    "messages": "Messages",
+    "profile": "Profile"
+  },
+  "challenge": {
+    "monthly": "Monthly Challenge",
+    "plastic": "Reduce plastic usage by 50%",
+    "complete": "complete"
+  },
+  "upload": {
+    "dragDrop": "Click to upload an image or drag and drop",
+    "fileTypes": "PNG, JPG, GIF up to 10MB"
   }
 } 

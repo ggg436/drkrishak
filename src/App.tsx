@@ -11,6 +11,7 @@ import CarbonCalculator from './components/CarbonCalculator';
 import Events from './components/Events';
 import Messages from './components/Messages';
 import Disease from './components/Disease';
+import ChatBot from './components/ChatBot';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -45,6 +46,7 @@ function App() {
     return (
       <AuthProvider>
         <LandingPage onEnterApp={handleEnterApp} />
+        <ChatBot />
       </AuthProvider>
     );
   }
@@ -59,6 +61,7 @@ function App() {
             {renderContent()}
           </main>
         </div>
+        <ChatBot />
       </div>
     </AuthProvider>
   );

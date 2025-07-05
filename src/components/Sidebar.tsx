@@ -12,6 +12,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useAuth } from './AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   activeSection: string;
@@ -20,15 +21,16 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) => {
   const { user, isAuthenticated } = useAuth();
+  const { t } = useTranslation();
 
   const menuItems = [
-    { id: 'feed', label: 'Feed', icon: Home },
-    { id: 'marketplace', label: 'Green Marketplace', icon: ShoppingBag },
-    { id: 'disease', label: 'Disease', icon: Zap },
-    { id: 'events', label: 'Events', icon: Calendar },
-    { id: 'calculator', label: 'Carbon Calculator', icon: Calculator },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'feed', label: t('sidebar.feed'), icon: Home },
+    { id: 'marketplace', label: t('sidebar.marketplace'), icon: ShoppingBag },
+    { id: 'disease', label: t('sidebar.disease'), icon: Zap },
+    { id: 'events', label: t('sidebar.events'), icon: Calendar },
+    { id: 'calculator', label: t('sidebar.calculator'), icon: Calculator },
+    { id: 'messages', label: t('sidebar.messages'), icon: MessageSquare },
+    { id: 'profile', label: t('sidebar.profile'), icon: User },
   ];
 
   return (
@@ -36,21 +38,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) =>
       <div className="p-6">
         {/* Quick Stats */}
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">Your Impact</h3>
+          <h3 className="text-sm font-semibold text-gray-700 mb-4">{t('impact.title')}</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
               <div className="flex items-center space-x-2">
                 <Zap className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-gray-700">Carbon Saved</span>
+                <span className="text-sm text-gray-700">{t('impact.carbonSaved')}</span>
               </div>
               <span className="text-sm font-semibold text-green-600">
-                {isAuthenticated ? `${user?.stats.carbonSaved || 0} tons` : '0 tons'}
+                {isAuthenticated ? `${user?.stats.carbonSaved || 0} ${t('impact.tons')}` : `0 ${t('impact.tons')}`}
               </span>
             </div>
             <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
               <div className="flex items-center space-x-2">
                 <Award className="h-4 w-4 text-blue-600" />
-                <span className="text-sm text-gray-700">Eco Points</span>
+                <span className="text-sm text-gray-700">{t('impact.ecoPoints')}</span>
               </div>
               <span className="text-sm font-semibold text-blue-600">
                 {isAuthenticated ? user?.stats.ecoPoints || 0 : 0}
@@ -84,12 +86,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, setActiveSection }) =>
 
         {/* Current Challenge */}
         <div className="mt-8 p-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg text-white">
-          <h4 className="font-semibold mb-2">Monthly Challenge</h4>
-          <p className="text-sm opacity-90 mb-3">Reduce plastic usage by 50%</p>
+          <h4 className="font-semibold mb-2">{t('challenge.monthly')}</h4>
+          <p className="text-sm opacity-90 mb-3">{t('challenge.plastic')}</p>
           <div className="w-full bg-white/20 rounded-full h-2">
             <div className="bg-white h-2 rounded-full" style={{ width: '68%' }}></div>
           </div>
-          <p className="text-xs mt-2 opacity-80">68% complete</p>
+          <p className="text-xs mt-2 opacity-80">68% {t('challenge.complete')}</p>
         </div>
       </div>
     </aside>

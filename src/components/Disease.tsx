@@ -305,54 +305,41 @@ const Disease = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-green-700">{t('disease.title')}</h2>
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <p className="mb-4 text-gray-600">
-          {t('disease.upload')}
-        </p>
+    <div className="space-y-8">
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('disease.title')}</h1>
+        <p className="text-gray-600 mb-6">{t('disease.upload')}</p>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Image upload area */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <input 
-              type="file" 
+              type="file"
               id="image-upload"
-              accept="image/*" 
-              onChange={handleImageChange}
               className="hidden"
+              accept="image/*"
+              onChange={handleImageChange}
             />
             <label 
               htmlFor="image-upload" 
-              className="cursor-pointer block"
+              className="cursor-pointer flex flex-col items-center justify-center space-y-4"
             >
               {selectedImage ? (
                 <img 
                   src={selectedImage} 
                   alt="Selected crop" 
-                  className="max-h-64 mx-auto rounded-lg"
+                  className="h-48 object-contain rounded-lg"
                 />
               ) : (
-                <div className="py-8">
-                  <svg 
-                    className="mx-auto h-12 w-12 text-gray-400" 
-                    stroke="currentColor" 
-                    fill="none" 
-                    viewBox="0 0 48 48"
-                  >
-                    <path 
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Click to upload an image or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    PNG, JPG, GIF up to 10MB
-                  </p>
-                </div>
+                <>
+                  <div className="bg-green-50 rounded-full p-4">
+                    <svg className="h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-medium text-gray-600">{t('upload.dragDrop')}</p>
+                  <p className="text-xs text-gray-500">{t('upload.fileTypes')}</p>
+                </>
               )}
             </label>
           </div>
@@ -360,33 +347,32 @@ const Disease = () => {
           <div className="flex justify-center">
             <button 
               type="submit" 
-              disabled={!selectedImage || loading}
-              className="bg-green-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!imageFile || loading}
+              className={`px-6 py-2.5 rounded-full font-medium text-white transition-all
+                ${loading 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg'
+                }`}
             >
               {loading ? t('disease.processing') : t('disease.identify')}
             </button>
           </div>
         </form>
-        
-        {loading && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Analyzing your crop image...</p>
-          </div>
-        )}
-        
-        {error && (
-          <div className="mt-6 p-4 bg-red-50 rounded-lg text-red-800 border border-red-200">
-            {error}
-          </div>
-        )}
-        
-        {result && (
-          <div className="mt-8">
-            {renderResults()}
-          </div>
-        )}
       </div>
+      
+      {/* Display error if any */}
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4">
+          <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      
+      {/* Display results if available */}
+      {result && (
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          {renderResults()}
+        </div>
+      )}
     </div>
   );
 };

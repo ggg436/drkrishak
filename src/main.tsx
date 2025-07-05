@@ -4,6 +4,7 @@ import App from './App.tsx';
 import './index.css';
 import ClerkAuthProvider from './components/ClerkAuthProvider';
 import { UserProvider } from './components/UserContext';
+import './i18n/i18n';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

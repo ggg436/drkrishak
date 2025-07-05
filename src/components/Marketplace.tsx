@@ -5,6 +5,7 @@ import AuthModal from './AuthModal';
 import ProductDetails from './ProductDetails';
 import AddProductModal from './AddProductModal';
 import SellerDashboard from './SellerDashboard';
+import ChatBot from './ChatBot';
 // Import FarmingPostModal component
 // Note: This import is commented out until the FarmingPostModal component is created
 // import FarmingPostModal from './FarmingPostModal';
@@ -581,6 +582,9 @@ const Marketplace = () => {
         onClose={() => setShowAddProductModal(false)}
         onProductAdded={handleProductAdded}
       />
+
+      {/* Chat Bot */}
+      <ChatBot />
 
       {/* Uncomment when FarmingPostModal component is created */}
       {/* {showFarmingPostModal && (
